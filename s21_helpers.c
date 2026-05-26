@@ -39,14 +39,6 @@ int get_double_sign(double num){
     return sign;
 }
 
-void s21_set_sign(s21_decimal *num, int sign){
-   if(sign){
-        num -> bits[3] = num -> bits[3] | (1u << 31);
-   }else{
-        num -> bits[3] = num -> bits[3] &~ (1u <<31);
-   }
-}
-
 bitPosition get_bit_position(int index){
     bitPosition result;
     result.index = index / 32;
@@ -79,4 +71,13 @@ int get_scale(s21_decimal *decimal){
     int scale = decimal ->bits[3] & (0xFFu <<16);
     scale = (scale >> 16);
     return scale;
+}
+
+void set_bit(s21_decimal *decimal, int bit,unsigned int value){
+    bitPosition position = get_bit_position(bit);
+    if(value){
+        decimal->bits[position.index] = decimal->bits[position.index] | (1u << position.localPosition);
+    }else{
+        decimal->bits[position.index] = decimal->bits[position.index] &~ (1u << position.localPosition);
+    }
 }
