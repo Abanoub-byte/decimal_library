@@ -69,3 +69,14 @@ int s21_get_sign(s21_decimal *decimal){
 void s21_set_sign(s21_decimal *decimal, int sign){
    set_bit(decimal, 127 ,sign);
 }
+
+void set_scale(s21_decimal *decimal, int scale){
+    decimal->bits[3] = decimal->bits[3] & ~(0xFFu << 16 );
+    decimal->bits[3] = decimal ->bits[3] | ((unsigned int)scale << 16);
+}
+
+int get_scale(s21_decimal *decimal){
+    int scale = decimal ->bits[3] & (0xFFu <<16);
+    scale = (scale >> 16);
+    return scale;
+}

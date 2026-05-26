@@ -8,16 +8,8 @@ void print_moving_bit(int num);
 void shift_print(int num, int shift, char direction);
 
 void set_scale(s21_decimal *decimal, int scale){
-    for(int i = 31; i>=0; i--){
-        for(int k = 23; k >= 16;k--){
-            if((scale >> i) & 1){
-                set_bit(decimal, k, 1u);
-            }else{
-                set_bit(decimal, k, 0);
-            }
-        }
-    }
-
+    decimal->bits[3] = decimal->bits[3] & ~(0xFFu << 16 );
+    decimal->bits[3] = decimal ->bits[3] | ((unsigned int)scale << 16);
 }
 
 int main(){
