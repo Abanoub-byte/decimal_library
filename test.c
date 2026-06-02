@@ -1,70 +1,69 @@
 #include <stdio.h>
 
 #include "s21_helpers.h"
+#include "s21_decimal.h"
 
+// void multiply(s21_decimal *decimal, int multiply){
+//     unsigned long long temp =  (unsigned long long)decimal->bits[0] * multiply;
+//     decimal->bits[0] = temp & 0xFFFFFFFF;
+//     unsigned long long temp1 = temp >> 32;
 
-void bit_print(int num);
-void print_moving_bit(int num);
-void shift_print(int num, int shift, char direction);
+//     unsigned long long temp2 = (unsigned long long)decimal->bits[1] * multiply;
+//     unsigned long long temp3  = temp2 >> 32;
+//     decimal->bits[1] = temp2 &  0xFFFFFFFF;
 
-void set_scale(s21_decimal *decimal, int scale){
-    decimal->bits[3] = decimal->bits[3] & ~(0xFFu << 16 );
-    decimal->bits[3] = decimal ->bits[3] | ((unsigned int)scale << 16);
-}
+//     unsigned long long temp4 = (unsigned long long)decimal->bits[2] * multiply;
+//     int temp5 = temp4 >> 32;
+//     decimal->bits[2] = temp5 &  0xFFFFFFFF;
+
+// }
+
+void multiply(s21_decimal *decimal, unsigned int mulitplyer);
+int add_digit(s21_decimal *decimal, unsigned int digit);
 
 int main(){
-    int value = bit_value(123456);
+    unsigned int number = 3000000000;
+    multiply(number, 10);
+    
     return 0;
 }
 
-void print_moving_bit(int num){
-    for(int i = 5; i>=0; i--){
-        num >>= 1;
-        for(int k =31; k>=0; k--){
-            if((num>>k) & 1){
-                printf("1");
-            }else{
-                printf("0");
-            }
-        }    
-        printf("\n");
-    }
-    printf("\n");
-}
+int add_digit(s21_decimal *decimal, unsigned int digit){
 
-void bit_print(int num){
+    int error = 0;
+    unsigned long long value1 = (unsigned long long)decimal->bits[0] + digit;
+    decimal->bits[0] = value1 & 0XFFFFFFFF;
+
+    unsigned long long value2 = (unsigned long long)decimal->bits[1] +(value1 >> 32);
+    decimal->bits[1] =  value2 & 0xFFFFFFFF;
     
-    for(int i =31; i>=0; i--){
-        if((num>>i) & 1){
-            printf("1");
-        }else{
-            printf("0");
-        }
+    unsigned long long value3 = (unsigned long long)decimal->bits[2] + (value2 >> 32);
+    if ((value3 >> 32) != 0){
+        error = 1;
+    }else {
+        decimal->bits[2] = value3 & 0xFFFFFFFF;
     }
+    return error;
 }
 
-void set_decimal_sign(s21_decimal *num, int sign){
-if (sign) num->bits[3] = num->bits[3] | (1u << 31);
+void multiply(s21_decimal *decimal, unsigned int multiplyer){
+
+    unsigned long long num1 = (unsigned long long) decimal->bits[0] * multiplyer; 
+    unsigned long long num2 = (unsigned long long) decimal->bits[1] * multiplyer;
+    unsigned long long num3 = (unsigned long long) decimal->bits[2] * multiplyer;
+
+    decimal->bits[0] = num1 & 0xFFFFFFFF;
+    decimal->bits[1] = (num2 & 0xFFFFFFFF) + (num1 >> 32);
+
+    unsigned long long value3 = (unsigned long long)(num3 & 0XFFFFFFFF) + (num2 >> 32);
+
+    if (value3 >> 32 != 0){
+        printf("number is too big");
+    }else{
+        printf("succeed");
+        decimal->bits[2] = value3;
+
+}
 }
 
-
-
-void shift_print(int num, int shift, char direction){
-    switch (direction)
-    {
-    case 'r':
-        num  = num >> shift;
-        break;
-    
-    default:
-         num  = num << shift;
-        break;
-    }
-    for(int i = 31; i>= 0; i-- ){
-        if((num >> i) & 1){
-            printf("1");
-        }else{
-            printf("0");
-        }
-    }
-}
+void

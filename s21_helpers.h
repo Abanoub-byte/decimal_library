@@ -8,7 +8,7 @@
 typedef struct {
     int index;
     int localPosition;
-}bitPosition;
+} bitPosition;
 
 void set_scale(s21_decimal *decimal, int scale);
 int get_scale(s21_decimal *decimal);
@@ -24,4 +24,6 @@ void get_mantissa(char str[]);
 void set_bit(s21_decimal *decimal, int bit,unsigned int value);
 bitPosition get_bit_position(int index);
 int get_bit_value(s21_decimal *decimal, int bit);
+
+
 #endif

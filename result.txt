@@ -1,0 +1,105 @@
+============================================
+TRACING YOUR | (OR) VERSION
+============================================
+
+STARTING VALUES:
+  bits[0] = 00011101 11001101 01100101 00000000  (decimal: 500000000)
+  bits[1] = 00000000 00000000 00000000 00000011  (decimal: 3)
+  bits[2] = 00000000 00000000 00000000 00000000  (decimal: 0)
+  multiplier = 10
+  Full number = 13384901888
+  Expected after *10 = 133849018880
+
+============================================
+MULTIPLICATIONS:
+============================================
+  num1 (bits[0]*10) = 00000000 00000000 00000000 00000001 00101010 00000101 11110010 00000000  (decimal: 5000000000)
+  num2 (bits[1]*10) = 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00011110  (decimal: 30)
+  num3 (bits[2]*10) = 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000  (decimal: 0)
+
+============================================
+YOUR LINE: bits[0] = bits[0] | (num1 & 0xFFFFFFFF)
+============================================
+
+  bits[0] (old)      = 00011101 11001101 01100101 00000000  (decimal: 500000000)
+  |
+  num1 & 0xFFFFFFFF  = 00101010 00000101 11110010 00000000  (decimal: 705032704)
+  =
+
+  Let's see bit by bit where | goes wrong:
+
+  bits[0] = 00011101 11001101 01100101 00000000
+  OR        00101010 00000101 11110010 00000000
+             ----^--- -----^-^ -^^----- --------  (^ = both are 1, OR loses the carry here!)
+
+  bits[0] | num1     = 00111111 11001101 11110111 00000000  (decimal: 1070462720)
+  bits[0] + num1     = 01000111 11010011 01010111 00000000  (decimal: 1205032704)
+
+  OR  result = 1070462720
+  ADD result = 1205032704
+  CORRECT    = 705032704  (just assign num1 lower, no old bits[0])
+
+  OR lost information at every ^ position!
+  When both bits are 1: OR gives 1, but real addition carries.
+
+============================================
+YOUR LINE: bits[1] = (bits[1] | (num2 & 0xFFF)) | (num1>>32)
+============================================
+
+  Three values being OR'd together:
+
+  bits[1] (old)      = 00000000 00000000 00000000 00000011  (decimal: 3)
+  num2 & 0xFFFFFFFF  = 00000000 00000000 00000000 00011110  (decimal: 30)
+  carry (num1 >> 32) = 00000000 00000000 00000000 00000001  (decimal: 1)
+
+  Step by step:
+
+  bits[1]    = 00000000 00000000 00000000 00000011  = 3  (binary: 11)
+  num2 lower = 00000000 00000000 00000000 00011110  = 30 (binary: 11110)
+  carry      = 00000000 00000000 00000000 00000001  = 1  (binary: 1)
+
+  ZOOM IN on the last 6 bits:
+
+    bits[1]    = ...0 00011  (3)
+    num2 lower = ...0 11110  (30)
+    carry      = ...0 00001  (1)
+    -------------------------
+    OR  all    = ...0 11111  = 31
+    CORRECT    = ...0 11111  = 31
+
+  LUCKY! They match here because no bits overlap.
+  But this is ONLY because 3 = 11 and 30 = 11110 share bit 1.
+  3 | 30 = 11 | 11110 = 11111 = 31, and 3 is inside 30 already.
+
+  Let's try with bits[1] = 5 instead of 3:
+
+    bits[1]  = 5  = ...000101
+    5 * 10   = 50 = ...110010
+    carry    = 1  = ...000001
+    -------------------------
+    OR  all  = 5 | 50 | 1 = 55
+    ADD corr = 50 + 1 = 51
+    ^ = 55 vs 51  DIFFERENT! OR fails here.
+
+    Why? Because 5 = 101 and 50 = 110010
+    bit 0: 5 has 1, 50 has 0, carry has 1 -> OR = 1, ADD = 10 (carry!)
+    OR can't carry, so it loses information.
+
+============================================
+FINAL: WHY | FAILS
+============================================
+
+  | (OR) rule:  1 | 1 = 1   (merges, no carry)
+  + (ADD) rule: 1 + 1 = 10  (carries to next bit)
+
+  OR sometimes gives the right answer BY LUCK
+  (when no bits overlap). But it's not reliable.
+
+  Also: you're OR-ing with old bits[N] values,
+  but num1/num2/num3 already contain bits[N]*10.
+  So you're double-counting, same as the + version.
+
+  CORRECT approach: just ASSIGN, only + the carry:
+    bits[0] = num1 & 0xFFFFFFFF
+    bits[1] = (num2 & 0xFFFFFFFF) + (num1 >> 32)
+    bits[2] = (num3 & 0xFFFFFFFF) + (num2 >> 32)
