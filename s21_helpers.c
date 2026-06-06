@@ -17,9 +17,9 @@ int get_scale_from_string(char str[]){
       if (str[i] == '.') position = i;
       i++;
     }
-    
     scale = i - position -1;
     if(position == -1 ) scale = 0;
+
     return scale;
 }
 
@@ -47,14 +47,14 @@ bitPosition get_bit_position(int index){
     return result;
 }
 
-int get_bit_value(s21_decimal *decimal, int bit){
+int get_bit_value(s21_decimal decimal, int bit){
     bitPosition position  = get_bit_position(bit);
     int value = 0;
-    value = (decimal->bits[position.index] >> position.localPosition) & 1;
+    value = (decimal.bits[position.index] >> position.localPosition) & 1;
     return value;
 }
 
-int s21_get_sign(s21_decimal *decimal){
+int s21_get_sign(s21_decimal decimal){
     return get_bit_value(decimal, 127);
 }
 
@@ -67,8 +67,8 @@ void set_scale(s21_decimal *decimal, int scale){
     decimal->bits[3] = decimal ->bits[3] | ((unsigned int)scale << 16);
 }
 
-int get_scale(s21_decimal *decimal){
-    int scale = decimal ->bits[3] & (0xFFu <<16);
+int get_scale(s21_decimal decimal){
+    int scale = decimal.bits[3] & (0xFFu <<16);
     scale = (scale >> 16);
     return scale;
 }
@@ -81,3 +81,14 @@ void set_bit(s21_decimal *decimal, int bit,unsigned int value){
         decimal->bits[position.index] = decimal->bits[position.index] &~ (1u << position.localPosition);
     }
 }
+
+int s21_negate(s21_decimal decimal, s21_decimal *result){
+        *result = decimal; //copy decimal into result
+        int value = get_bit_value(*result, 127);
+        if(value){
+            set_bit(result,127, 0 );
+        }else{
+            set_bit(result, 127, 1);
+        }
+        return 0;
+    }

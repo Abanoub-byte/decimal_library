@@ -11,8 +11,8 @@ typedef struct {
 } bitPosition;
 
 void set_scale(s21_decimal *decimal, int scale);
-int get_scale(s21_decimal *decimal);
-int s21_get_sign(s21_decimal *decimal);
+int get_scale(s21_decimal decimal);
+int s21_get_sign(s21_decimal decimal);
 void s21_set_sign(s21_decimal *decimal, int sign);
 int get_double_sign(double num);
 int get_float_sign(float num);
@@ -23,7 +23,7 @@ void double_to_string(double num, char str[], int size);
 void get_mantissa(char str[]);
 void set_bit(s21_decimal *decimal, int bit,unsigned int value);
 bitPosition get_bit_position(int index);
-int get_bit_value(s21_decimal *decimal, int bit);
+int get_bit_value(s21_decimal decimal, int bit);
 
 
 #endif
