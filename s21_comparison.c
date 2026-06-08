@@ -50,7 +50,7 @@ int s21_is_equal(s21_decimal decimal1, s21_decimal decimal2){
     return error;
 }
 
-int is_not_equal(s21_decimal decimal1, s21_decimal decimal2){
+int s21_is_not_equal(s21_decimal decimal1, s21_decimal decimal2){
     return !s21_is_equal(decimal1, decimal2);
 }
 
@@ -61,7 +61,7 @@ int s21_is_less(s21_decimal decimal1, s21_decimal decimal2){
     int sign2 = s21_get_sign(decimal2);
     int result = 0;
 
-    if(is_not_equal(decimal1, decimal2)){
+    if(s21_is_not_equal(decimal1, decimal2)){
         if(sign1 && !sign2){
     result = 1;
    }else if(sign1 && !sign2){
@@ -74,4 +74,16 @@ int s21_is_less(s21_decimal decimal1, s21_decimal decimal2){
     }
    
     return result;
+}
+
+int s21_is_less_or_equal(s21_decimal decimal1, s21_decimal decimal2){
+    return s21_is_less(decimal1, decimal2) || s21_is_equal(decimal1, decimal2);
+}
+
+int s21_is_greater(s21_decimal decimal1, s21_decimal decimal2){
+    return !s21_is_less_or_equal(decimal1, decimal2);
+}
+
+int s21_is_greater_or_equal(s21_decimal decimal1, s21_decimal decimal2) {
+    return !s21_is_less(decimal1, decimal2);
 }
