@@ -19,7 +19,7 @@ int get_float_sign(float num);
 int get_scale_from_string(char str[]);
 void float_to_string(float num, char str[], int size);
 void double_to_string(double num, char str[], int size);
-
+int multiply(s21_decimal *decimal, unsigned int multiplier);
 void get_mantissa(char str[]);
 void set_bit(s21_decimal *decimal, int bit,unsigned int value);
 bitPosition get_bit_position(int index);

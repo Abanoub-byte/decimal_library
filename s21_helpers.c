@@ -92,3 +92,23 @@ int s21_negate(s21_decimal decimal, s21_decimal *result){
         }
         return 0;
     }
+
+    int multiply(s21_decimal *decimal, unsigned int multiplier) {
+    
+    int error = 0;
+    unsigned long long num1 = (unsigned long long)decimal->bits[0] * multiplier;
+    unsigned long long num2 = (unsigned long long)decimal->bits[1] * multiplier;
+    unsigned long long num3 = (unsigned long long)decimal->bits[2] * multiplier;
+
+    decimal->bits[0] = num1 & 0xFFFFFFFF;
+    decimal->bits[1] = (num2 & 0xFFFFFFFF) + (num1 >> 32);
+
+    unsigned long long value3 = (unsigned long long)(num3 & 0xFFFFFFFF) + (num2 >> 32);
+    
+    if (value3 >> 32 != 0) {
+        error = 1;
+    }else{
+        decimal->bits[2] = value3;
+    }
+    return error;
+}
