@@ -19,9 +19,6 @@ int from_decimal_to_int(s21_decimal source, int *dst){
     *dst = 0;
     unsigned long long reminder = 0;
     unsigned long long combine = 0;
-    
-        
-
     int scale = get_scale(source);
         return error;
 }
