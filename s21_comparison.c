@@ -64,7 +64,7 @@ int s21_is_less(s21_decimal decimal1, s21_decimal decimal2){
     if(s21_is_not_equal(decimal1, decimal2)){
         if(sign1 && !sign2){
     result = 1;
-   }else if(sign1 && !sign2){
+   }else if(!sign1 && sign2){
     result = 0;
    }else if(sign1 && sign2){
     result = !is_less_mentissa(decimal1, decimal2);

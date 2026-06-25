@@ -93,7 +93,7 @@ int s21_negate(s21_decimal decimal, s21_decimal *result){
         return 0;
     }
 
-    int multiply(s21_decimal *decimal, unsigned int multiplier) {
+int multiply(s21_decimal *decimal, unsigned int multiplier) {
     
     int error = 0;
     unsigned long long num1 = (unsigned long long)decimal->bits[0] * multiplier;
@@ -105,10 +105,27 @@ int s21_negate(s21_decimal decimal, s21_decimal *result){
 
     unsigned long long value3 = (unsigned long long)(num3 & 0xFFFFFFFF) + (num2 >> 32);
     
-    if (value3 >> 32 != 0) {
+    if (value3 >> 32 != 0 || num3 >> 32 != 0) {
         error = 1;
     }else{
         decimal->bits[2] = value3;
     }
     return error;
 }
+
+// int divide(s21_decimal *decimal, unsigned int divider ){
+
+//     int err = 0;
+//     int num1 = decimal->bits[0] / divider;
+//     int num2 = decimal->bits[1] / divider;
+//     int num3 = decimal->bits[2] / divider;
+
+//     unsigned long long result1 = (unsigned long long) num1 + (unsigned long long ) num2;
+//     decimal->bits[0] = (result1 & 0xFFFFFFFF);
+    
+//     unsigned long long result2 = (unsigned long long num2 )
+//     decimal->bits[1] 
+
+
+//     return err;
+// }
