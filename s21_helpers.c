@@ -113,19 +113,19 @@ int multiply(s21_decimal *decimal, unsigned int multiplier) {
     return error;
 }
 
-// int divide(s21_decimal *decimal, unsigned int divider ){
+int divide(s21_decimal *decimal, unsigned int divider ){
 
-//     int err = 0;
-//     int num1 = decimal->bits[0] / divider;
-//     int num2 = decimal->bits[1] / divider;
-//     int num3 = decimal->bits[2] / divider;
+    int err = 0;
+    int num1 = decimal->bits[0] / divider;
+    int num2 = decimal->bits[1] / divider;
+    int num3 = decimal->bits[2] / divider;
 
-//     unsigned long long result1 = (unsigned long long) num1 + (unsigned long long ) num2;
-//     decimal->bits[0] = (result1 & 0xFFFFFFFF);
+    unsigned long long result1 = (unsigned long long) num1 + (unsigned long long ) num2;
+    decimal->bits[0] = (result1 & 0xFFFFFFFF);
     
-//     unsigned long long result2 = (unsigned long long num2 )
-//     decimal->bits[1] 
+    unsigned long long result2 = (unsigned long long num2 )
+    decimal->bits[1] 
 
 
-//     return err;
-// }
+    return err;
+}
