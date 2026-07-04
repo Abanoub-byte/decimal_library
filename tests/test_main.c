@@ -741,23 +741,23 @@ END_TEST
 // --- float_to_string ---
 
 START_TEST(test_float_to_string_simple) {
-    char str[50];
-    float_to_string(3.14f, str, 50);
-    ck_assert_str_eq(str, "3.14");
+  char str[50];
+  float_to_string(3.14f, str, 50);
+  ck_assert_str_eq(str, "3.1400001");
 }
 END_TEST
 
 START_TEST(test_float_to_string_integer) {
-    char str[50];
-    float_to_string(100.0f, str, 50);
-    ck_assert_str_eq(str, "100");
+  char str[50];
+  float_to_string(100.0f, str, 50);
+  ck_assert_str_eq(str, "100.0000000");
 }
 END_TEST
 
 START_TEST(test_float_to_string_negative) {
-    char str[50];
-    float_to_string(-5.5f, str, 50);
-    ck_assert_str_eq(str, "-5.5");
+  char str[50];
+  float_to_string(-5.5f, str, 50);
+  ck_assert_str_eq(str, "-5.5000000");
 }
 END_TEST
 

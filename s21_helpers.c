@@ -1,11 +1,13 @@
 #include "s21_helpers.h"
+#include <string.h>
+#include <ctype.h>
 
 void float_to_string(float num, char str[], int size){
-    snprintf(str, size, "%.7g", num);
+    snprintf(str, size, "%.7f", num);
 }
 
 void double_to_string(double num, char str[], int size){
-    snprintf(str, size, "%.15g", num);
+    snprintf(str, size, "%.15gf", num);
 }
 
 int get_scale_from_string(char str[]){
@@ -17,11 +19,23 @@ int get_scale_from_string(char str[]){
       if (str[i] == '.') position = i;
       i++;
     }
-    scale = i - position -1;
-    if(position == -1 ) scale = 0;
+    if (position == -1) {
+        scale = 0;
+    } else {
+        scale = i - position - 1;
+    }
 
     return scale;
 }
+
+// int get_mantissa_from_string(char str[]){
+//     if(isdigit((unsigned char)str[i])){
+//         char mantissa[] = mantissa * 10 +(str[i] - '0');
+
+//     }
+//     return 0;
+// }
+
 
 int get_float_sign(float num){
     int sign = 0;
@@ -114,18 +128,20 @@ int multiply(s21_decimal *decimal, unsigned int multiplier) {
 }
 
 int divide(s21_decimal *decimal, unsigned int divider ){
-
     int err = 0;
-    int num1 = decimal->bits[0] / divider;
-    int num2 = decimal->bits[1] / divider;
-    int num3 = decimal->bits[2] / divider;
 
-    unsigned long long result1 = (unsigned long long) num1 + (unsigned long long ) num2;
-    decimal->bits[0] = (result1 & 0xFFFFFFFF);
+    if (divider != 0){
+        unsigned long long combined1 = decimal->bits[2];
+        unsigned long long carry1= combined1 % divider;
+        decimal->bits[2] = combined1 / divider;
     
-    unsigned long long result2 = (unsigned long long num2 )
-    decimal->bits[1] 
-
-
+        unsigned long long combined2 = decimal->bits[1] | carry1 << 32;
+        decimal->bits[1] = combined2 /divider;
+        unsigned long long carry2 = combined2 % divider;
+    
+        decimal->bits[0] = (decimal->bits[0] | (carry2 << 32)) / divider;
+    }else{
+        err = 1;
+    }
     return err;
 }

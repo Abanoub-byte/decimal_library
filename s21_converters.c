@@ -2,6 +2,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <limits.h>
+#include <string.h>
+
 int s21_from_int_to_decimal(int src, s21_decimal *dst){
     int error = 0;
     *dst = (s21_decimal){0};
@@ -14,30 +16,48 @@ int s21_from_int_to_decimal(int src, s21_decimal *dst){
     return error;
 }
 
-int from_decimal_to_int(s21_decimal decimal, int *dst){
+int s21_from_decimal_to_int(s21_decimal decimal, int *dst){
+  
   int err = 0;
+  int scale = get_scale(decimal);
 
-  if(decimal.bits[1] == 0 && decimal.bits[2] == 0 && decimal.bits[0] < INT_MAX){
-      
-    int scale = get_scale(decimal);
-    int sign = s21_get_sign(decimal);
-    
+  for (int i = 0; i < scale; i++){
+    divide(&decimal, 10);
+  }
+  int fits = (decimal.bits[1] == 0 && decimal.bits[2] == 0);
+  int sign = s21_get_sign(decimal);
+  int in_range = (sign && decimal.bits[0] <= (unsigned int)INT_MAX +1) || decimal.bits[0] <=(unsigned long long)INT_MAX;
+
+  if(fits && in_range){
+    if(sign){
+      *dst = (int)-(unsigned long long)decimal.bits[0];
+    }else{
       *dst = decimal.bits[0];
-    
-      for (int i = 0; i < scale; i++){
-        *dst  = *dst / 10;
-      }
-      if(sign){
-        *dst = *dst * -1;
-      }
+    }
       }else{
         err = 1;
       }
-
   return err;
+    }
+
+int s21_from_float_to_decimal(float src, s21_decimal *dst){
+
+  int sign = 0;
+  char buf[64];
+
+  float_to_string(src, buf, 50);
+  int scale = get_scale_from_string(buf);
+  if(0>src){
+    set_bit(dst, 127, sign);
+  }
+  set_scale(dst, scale);
+  
+  return 0;
+
+}
 /*
       ffff   jjjj   
-      ffff
+      ffffh
       
 
 
