@@ -1,41 +1,34 @@
 #include "s21_helpers.h"
-#include <string.h>
-#include <ctype.h>
+#include <math.h>
 
-void float_to_string(float num, char str[], int size){
-    snprintf(str, size, "%.7f", num);
+unsigned long long s21_bank_round_double(double value) {
+  double int_part = floor(value);
+  double frac = value - int_part;
+  unsigned long long result = (unsigned long long)int_part;
+
+  if (frac > 0.5) {
+    result++;
+  } else if (frac == 0.5 && result % 2 != 0) {
+    result++;
+  }
+
+  return result;
 }
 
-void double_to_string(double num, char str[], int size){
-    snprintf(str, size, "%.15gf", num);
+void s21_set_mantissa_from_ull(s21_decimal *decimal,
+                               unsigned long long mantissa) {
+  decimal->bits[0] = (unsigned int)(mantissa & 0xFFFFFFFFULL);
+  decimal->bits[1] = (unsigned int)((mantissa >> 32) & 0xFFFFFFFFULL);
+  decimal->bits[2] = 0;
 }
 
-int get_scale_from_string(char str[]){
-    int i = 0;
-    int scale = 0;
-    int position = -1;
 
-    while (str[i] != '\0'){
-      if (str[i] == '.') position = i;
-      i++;
-    }
-    if (position == -1) {
-        scale = 0;
-    } else {
-        scale = i - position - 1;
-    }
-
-    return scale;
+void s21_remove_ull_trailing_zeros(unsigned long long *mantissa, int *scale) {
+  while (*scale > 0 && *mantissa != 0 && *mantissa % 10 == 0) {
+    *mantissa /= 10;
+    (*scale)--;
+  }
 }
-
-// int get_mantissa_from_string(char str[]){
-//     if(isdigit((unsigned char)str[i])){
-//         char mantissa[] = mantissa * 10 +(str[i] - '0');
-
-//     }
-//     return 0;
-// }
-
 
 int get_float_sign(float num){
     int sign = 0;
@@ -97,48 +90,70 @@ void set_bit(s21_decimal *decimal, int bit,unsigned int value){
 }
 
 int s21_negate(s21_decimal decimal, s21_decimal *result){
-        *result = decimal; //copy decimal into result
-        int value = get_bit_value(*result, 127);
-        if(value){
-            set_bit(result,127, 0 );
-        }else{
-            set_bit(result, 127, 1);
-        }
-        return 0;
+
+  int error = 0;
+  if(result == NULL) error = 1;
+  if(!error){
+    *result = decimal; //copy decimal into result
+    int value = get_bit_value(*result, 127);
+    if(value){
+        set_bit(result,127, 0 );
+    }else{
+        set_bit(result, 127, 1);
+    }
+  }
+        return error;
     }
 
 int multiply(s21_decimal *decimal, unsigned int multiplier) {
-    
-    int error = 0;
-    unsigned long long num1 = (unsigned long long)decimal->bits[0] * multiplier;
-    unsigned long long num2 = (unsigned long long)decimal->bits[1] * multiplier;
-    unsigned long long num3 = (unsigned long long)decimal->bits[2] * multiplier;
+  int error = 0;
+  unsigned long long num1 = 0;
+  unsigned long long num2 = 0;
+  unsigned long long num3 = 0;
+  unsigned long long bits0 = 0;
+  unsigned long long bits1 = 0;
+  unsigned long long bits2 = 0;
 
-    decimal->bits[0] = num1 & 0xFFFFFFFF;
-    decimal->bits[1] = (num2 & 0xFFFFFFFF) + (num1 >> 32);
+  if (decimal == NULL) {
+    error = 1;
+  }
 
-    unsigned long long value3 = (unsigned long long)(num3 & 0xFFFFFFFF) + (num2 >> 32);
-    
-    if (value3 >> 32 != 0 || num3 >> 32 != 0) {
-        error = 1;
-    }else{
-        decimal->bits[2] = value3;
+  if (!error) {
+    num1 = (unsigned long long)(unsigned int)decimal->bits[0] * multiplier;
+    num2 = (unsigned long long)(unsigned int)decimal->bits[1] * multiplier;
+    num3 = (unsigned long long)(unsigned int)decimal->bits[2] * multiplier;
+
+    bits0 = num1 & 0xFFFFFFFFULL;
+    bits1 = (num2 & 0xFFFFFFFFULL) + (num1 >> 32);
+    bits2 = (num3 & 0xFFFFFFFFULL) + (num2 >> 32) + (bits1 >> 32);
+
+    if ((num3 >> 32) != 0 || (bits2 >> 32) != 0) {
+      error = 1;
     }
-    return error;
+  }
+
+  if (!error) {
+    decimal->bits[0] = (unsigned int)bits0;
+    decimal->bits[1] = (unsigned int)(bits1 & 0xFFFFFFFFULL);
+    decimal->bits[2] = (unsigned int)(bits2 & 0xFFFFFFFFULL);
+  }
+
+  return error;
 }
 
 int divide(s21_decimal *decimal, unsigned int divider ){
     int err = 0;
+    
 
-    if (divider != 0){
+    if (divider != 0 && decimal != NULL){
         unsigned long long combined1 = decimal->bits[2];
         unsigned long long carry1= combined1 % divider;
         decimal->bits[2] = combined1 / divider;
     
         unsigned long long combined2 = decimal->bits[1] | carry1 << 32;
         decimal->bits[1] = combined2 /divider;
+        
         unsigned long long carry2 = combined2 % divider;
-    
         decimal->bits[0] = (decimal->bits[0] | (carry2 << 32)) / divider;
     }else{
         err = 1;

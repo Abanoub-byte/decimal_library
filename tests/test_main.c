@@ -554,9 +554,14 @@ END_TEST
 
 START_TEST(test_int_to_decimal_min) {
     s21_decimal d;
-    s21_from_int_to_decimal(INT_MIN, &d);
-    ck_assert_uint_eq(d.bits[0], (unsigned int)2147483648u);
+    int err = s21_from_int_to_decimal(INT_MIN, &d);
+
+    ck_assert_int_eq(err, 0);
+    ck_assert_uint_eq((unsigned int)d.bits[0], 2147483648u);
+    ck_assert_uint_eq((unsigned int)d.bits[1], 0u);
+    ck_assert_uint_eq((unsigned int)d.bits[2], 0u);
     ck_assert_int_eq(s21_get_sign(d), 1);
+    ck_assert_int_eq(get_scale(d), 0);
 }
 END_TEST
 
@@ -655,12 +660,14 @@ END_TEST
 // --- multiply tricky cases ---
 
 START_TEST(test_multiply_max_bits0) {
-    // multiply max uint32 by 2, should overflow to bits[1]
-    s21_decimal d = {0};
-    d.bits[0] = 4294967295u;  // 0xFFFFFFFF
-    multiply(&d, 2);
-    ck_assert_uint_eq(d.bits[0], 4294967294u);  // 0xFFFFFFFE
-    ck_assert_uint_eq(d.bits[1], 1);
+  s21_decimal d = {0};
+  d.bits[0] = 4294967295u;
+
+  int err = multiply(&d, 2);
+
+  ck_assert_int_eq(err, 0);
+  ck_assert_uint_eq((unsigned int)d.bits[0], 4294967294u);
+  ck_assert_uint_eq((unsigned int)d.bits[1], 1u);
 }
 END_TEST
 
@@ -684,27 +691,6 @@ START_TEST(test_multiply_overflow_error) {
 }
 END_TEST
 
-// --- get_scale_from_string ---
-
-START_TEST(test_scale_from_string_no_dot) {
-    ck_assert_int_eq(get_scale_from_string("12345"), 0);
-}
-END_TEST
-
-START_TEST(test_scale_from_string_one_decimal) {
-    ck_assert_int_eq(get_scale_from_string("3.5"), 1);
-}
-END_TEST
-
-START_TEST(test_scale_from_string_many_decimals) {
-    ck_assert_int_eq(get_scale_from_string("3.14159"), 5);
-}
-END_TEST
-
-START_TEST(test_scale_from_string_just_dot) {
-    ck_assert_int_eq(get_scale_from_string("0.0"), 1);
-}
-END_TEST
 
 // --- get_float_sign / get_double_sign ---
 
@@ -735,29 +721,6 @@ END_TEST
 
 START_TEST(test_double_sign_negative) {
     ck_assert_int_eq(get_double_sign(-2.71), 1);
-}
-END_TEST
-
-// --- float_to_string ---
-
-START_TEST(test_float_to_string_simple) {
-  char str[50];
-  float_to_string(3.14f, str, 50);
-  ck_assert_str_eq(str, "3.1400001");
-}
-END_TEST
-
-START_TEST(test_float_to_string_integer) {
-  char str[50];
-  float_to_string(100.0f, str, 50);
-  ck_assert_str_eq(str, "100.0000000");
-}
-END_TEST
-
-START_TEST(test_float_to_string_negative) {
-  char str[50];
-  float_to_string(-5.5f, str, 50);
-  ck_assert_str_eq(str, "-5.5000000");
 }
 END_TEST
 
@@ -925,19 +888,12 @@ Suite *helpers_tricky_suite(void) {
     tcase_add_test(tc, test_multiply_max_bits0);
     tcase_add_test(tc, test_multiply_chain_overflow);
     tcase_add_test(tc, test_multiply_overflow_error);
-    tcase_add_test(tc, test_scale_from_string_no_dot);
-    tcase_add_test(tc, test_scale_from_string_one_decimal);
-    tcase_add_test(tc, test_scale_from_string_many_decimals);
-    tcase_add_test(tc, test_scale_from_string_just_dot);
     tcase_add_test(tc, test_float_sign_positive);
     tcase_add_test(tc, test_float_sign_negative);
     tcase_add_test(tc, test_float_sign_zero);
     tcase_add_test(tc, test_float_sign_negative_zero);
     tcase_add_test(tc, test_double_sign_positive);
     tcase_add_test(tc, test_double_sign_negative);
-    tcase_add_test(tc, test_float_to_string_simple);
-    tcase_add_test(tc, test_float_to_string_integer);
-    tcase_add_test(tc, test_float_to_string_negative);
     tcase_add_test(tc, test_negate_double_negate);
     tcase_add_test(tc, test_negate_doesnt_modify_original);
     suite_add_tcase(s, tc);

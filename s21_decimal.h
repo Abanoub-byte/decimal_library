@@ -2,7 +2,7 @@
 #define S21_DECIMAL_H
 
 typedef struct {
-    unsigned int bits[4];
+    int bits[4];
 } s21_decimal;
 
 int from_float_to_decimal(float src, s21_decimal *dst);
