@@ -32,8 +32,8 @@ void set_bit(s21_decimal *decimal, int bit, unsigned int value);
 int s21_get_sign(s21_decimal decimal);
 void s21_set_sign(s21_decimal *decimal, int sign);
 
-void set_scale(s21_decimal *decimal, int scale);
-int get_scale(s21_decimal decimal);
+void s21_set_scale(s21_decimal *decimal, int scale);
+int s21_get_scale(s21_decimal decimal);
 
 // Mantissa arithmetic helpers
 int multiply(s21_decimal *decimal, unsigned int multiplier);

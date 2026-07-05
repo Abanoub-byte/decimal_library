@@ -105,50 +105,50 @@ END_TEST
 
 START_TEST(test_set_sign_doesnt_affect_scale) {
     s21_decimal d = {0};
-    set_scale(&d, 5);
+    s21_set_scale(&d, 5);
     s21_set_sign(&d, 1);
-    ck_assert_int_eq(get_scale(d), 5);
+    ck_assert_int_eq(s21_get_scale(d), 5);
     ck_assert_int_eq(s21_get_sign(d), 1);
 }
 END_TEST
 
-// --- set_scale / get_scale ---
+// --- s21_set_scale / s21_get_scale ---
 
-START_TEST(test_set_scale_0) {
+START_TEST(test_s21_set_scale_0) {
     s21_decimal d = {0};
-    set_scale(&d, 0);
-    ck_assert_int_eq(get_scale(d), 0);
+    s21_set_scale(&d, 0);
+    ck_assert_int_eq(s21_get_scale(d), 0);
 }
 END_TEST
 
-START_TEST(test_set_scale_5) {
+START_TEST(test_s21_set_scale_5) {
     s21_decimal d = {0};
-    set_scale(&d, 5);
-    ck_assert_int_eq(get_scale(d), 5);
+    s21_set_scale(&d, 5);
+    ck_assert_int_eq(s21_get_scale(d), 5);
 }
 END_TEST
 
-START_TEST(test_set_scale_28) {
+START_TEST(test_s21_set_scale_28) {
     s21_decimal d = {0};
-    set_scale(&d, 28);
-    ck_assert_int_eq(get_scale(d), 28);
+    s21_set_scale(&d, 28);
+    ck_assert_int_eq(s21_get_scale(d), 28);
 }
 END_TEST
 
-START_TEST(test_set_scale_doesnt_affect_sign) {
+START_TEST(test_s21_set_scale_doesnt_affect_sign) {
     s21_decimal d = {0};
     s21_set_sign(&d, 1);
-    set_scale(&d, 10);
+    s21_set_scale(&d, 10);
     ck_assert_int_eq(s21_get_sign(d), 1);
-    ck_assert_int_eq(get_scale(d), 10);
+    ck_assert_int_eq(s21_get_scale(d), 10);
 }
 END_TEST
 
-START_TEST(test_set_scale_replace) {
+START_TEST(test_s21_set_scale_replace) {
     s21_decimal d = {0};
-    set_scale(&d, 5);
-    set_scale(&d, 10);
-    ck_assert_int_eq(get_scale(d), 10);
+    s21_set_scale(&d, 5);
+    s21_set_scale(&d, 10);
+    ck_assert_int_eq(s21_get_scale(d), 10);
 }
 END_TEST
 
@@ -240,9 +240,9 @@ START_TEST(test_negate_preserves_scale) {
     s21_decimal a = {0};
     s21_decimal result = {0};
     a.bits[0] = 314;
-    set_scale(&a, 2);
+    s21_set_scale(&a, 2);
     s21_negate(a, &result);
-    ck_assert_int_eq(get_scale(result), 2);
+    ck_assert_int_eq(s21_get_scale(result), 2);
     ck_assert_uint_eq(result.bits[0], 314);
 }
 END_TEST
@@ -263,8 +263,8 @@ START_TEST(test_equal_same_number) {
     s21_decimal a = {0}, b = {0};
     a.bits[0] = 314;
     b.bits[0] = 314;
-    set_scale(&a, 2);
-    set_scale(&b, 2);
+    s21_set_scale(&a, 2);
+    s21_set_scale(&b, 2);
     ck_assert_int_eq(s21_is_equal(a, b), 1);
 }
 END_TEST
@@ -273,8 +273,8 @@ START_TEST(test_equal_different_number) {
     s21_decimal a = {0}, b = {0};
     a.bits[0] = 314;
     b.bits[0] = 315;
-    set_scale(&a, 2);
-    set_scale(&b, 2);
+    s21_set_scale(&a, 2);
+    s21_set_scale(&b, 2);
     ck_assert_int_eq(s21_is_equal(a, b), 0);
 }
 END_TEST
@@ -299,8 +299,8 @@ START_TEST(test_equal_different_scale_same_value) {
     s21_decimal a = {0}, b = {0};
     a.bits[0] = 314;
     b.bits[0] = 3140;
-    set_scale(&a, 2);
-    set_scale(&b, 3);
+    s21_set_scale(&a, 2);
+    s21_set_scale(&b, 3);
     // 314/100 = 3.14, 3140/1000 = 3.14
     ck_assert_int_eq(s21_is_equal(a, b), 1);
 }
@@ -423,9 +423,9 @@ END_TEST
 START_TEST(test_less_with_scale) {
     s21_decimal a = {0}, b = {0};
     a.bits[0] = 314;
-    set_scale(&a, 2);  // 3.14
+    s21_set_scale(&a, 2);  // 3.14
     b.bits[0] = 315;
-    set_scale(&b, 2);  // 3.15
+    s21_set_scale(&b, 2);  // 3.15
     ck_assert_int_eq(s21_is_less(a, b), 1);
 }
 END_TEST
@@ -561,14 +561,14 @@ START_TEST(test_int_to_decimal_min) {
     ck_assert_uint_eq((unsigned int)d.bits[1], 0u);
     ck_assert_uint_eq((unsigned int)d.bits[2], 0u);
     ck_assert_int_eq(s21_get_sign(d), 1);
-    ck_assert_int_eq(get_scale(d), 0);
+    ck_assert_int_eq(s21_get_scale(d), 0);
 }
 END_TEST
 
 START_TEST(test_int_to_decimal_scale_is_zero) {
     s21_decimal d;
     s21_from_int_to_decimal(123, &d);
-    ck_assert_int_eq(get_scale(d), 0);
+    ck_assert_int_eq(s21_get_scale(d), 0);
 }
 END_TEST
 
@@ -614,21 +614,21 @@ END_TEST
 
 START_TEST(test_sign_doesnt_affect_scale) {
     s21_decimal d = {0};
-    set_scale(&d, 15);
+    s21_set_scale(&d, 15);
     s21_set_sign(&d, 1);
-    ck_assert_int_eq(get_scale(d), 15);
+    ck_assert_int_eq(s21_get_scale(d), 15);
     s21_set_sign(&d, 0);
-    ck_assert_int_eq(get_scale(d), 15);
+    ck_assert_int_eq(s21_get_scale(d), 15);
 }
 END_TEST
 
-// --- set_scale tricky cases ---
+// --- s21_set_scale tricky cases ---
 
 START_TEST(test_scale_doesnt_affect_mantissa) {
     s21_decimal d = {0};
     d.bits[0] = 999999;
     d.bits[1] = 888888;
-    set_scale(&d, 20);
+    s21_set_scale(&d, 20);
     ck_assert_uint_eq(d.bits[0], 999999);
     ck_assert_uint_eq(d.bits[1], 888888);
 }
@@ -637,23 +637,23 @@ END_TEST
 START_TEST(test_scale_overwrite_old_value) {
     // make sure old scale is fully erased
     s21_decimal d = {0};
-    set_scale(&d, 28);  // 28 = 00011100
-    set_scale(&d, 1);   // 1  = 00000001
-    ck_assert_int_eq(get_scale(d), 1);  // not 29 or something weird
+    s21_set_scale(&d, 28);  // 28 = 00011100
+    s21_set_scale(&d, 1);   // 1  = 00000001
+    ck_assert_int_eq(s21_get_scale(d), 1);  // not 29 or something weird
 }
 END_TEST
 
 START_TEST(test_scale_and_sign_together) {
     s21_decimal d = {0};
     s21_set_sign(&d, 1);
-    set_scale(&d, 14);
+    s21_set_scale(&d, 14);
     ck_assert_int_eq(s21_get_sign(d), 1);
-    ck_assert_int_eq(get_scale(d), 14);
+    ck_assert_int_eq(s21_get_scale(d), 14);
     // now change both
     s21_set_sign(&d, 0);
-    set_scale(&d, 7);
+    s21_set_scale(&d, 7);
     ck_assert_int_eq(s21_get_sign(d), 0);
-    ck_assert_int_eq(get_scale(d), 7);
+    ck_assert_int_eq(s21_get_scale(d), 7);
 }
 END_TEST
 
@@ -776,11 +776,11 @@ Suite *helpers_suite(void) {
     suite_add_tcase(s, tc_sign);
 
     TCase *tc_scale = tcase_create("scale");
-    tcase_add_test(tc_scale, test_set_scale_0);
-    tcase_add_test(tc_scale, test_set_scale_5);
-    tcase_add_test(tc_scale, test_set_scale_28);
-    tcase_add_test(tc_scale, test_set_scale_doesnt_affect_sign);
-    tcase_add_test(tc_scale, test_set_scale_replace);
+    tcase_add_test(tc_scale, test_s21_set_scale_0);
+    tcase_add_test(tc_scale, test_s21_set_scale_5);
+    tcase_add_test(tc_scale, test_s21_set_scale_28);
+    tcase_add_test(tc_scale, test_s21_set_scale_doesnt_affect_sign);
+    tcase_add_test(tc_scale, test_s21_set_scale_replace);
     suite_add_tcase(s, tc_scale);
 
     TCase *tc_mul = tcase_create("multiply");

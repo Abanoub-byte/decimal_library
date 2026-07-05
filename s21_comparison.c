@@ -2,8 +2,8 @@
 
 
 void equalize_scales(s21_decimal *decimal1, s21_decimal *decimal2){
-    int scale1 = get_scale(*decimal1);
-    int scale2 = get_scale(*decimal2);
+    int scale1 = s21_get_scale(*decimal1);
+    int scale2 = s21_get_scale(*decimal2);
     
     while(scale1>scale2){
         multiply(decimal2, 10);

@@ -1,6 +1,47 @@
 #include "s21_helpers.h"
 #include <math.h>
 
+
+int get_double_scale(double src) {
+  int scale = 0;
+  double value = fabs(src);
+
+  if (value != 0.0) {
+    int exponent = (int)floor(log10(value));
+    scale = 15 - 1 - exponent;
+
+    if (scale < 0) {
+      scale = 0;
+    }
+
+    if (scale > 28) {
+      scale = 28;
+    }
+  }
+
+  return scale;
+}
+
+int get_float_scale(float src) {
+  int scale = 0;
+  double value = fabs((double)src);
+
+  if (value != 0.0) {
+    int exponent = (int)floor(log10(value));
+    scale = 7 - 1 - exponent;
+
+    if (scale < 0) {
+      scale = 0;
+    }
+
+    if (scale > 28) {
+      scale = 28;
+    }
+  }
+
+  return scale;
+}
+
 unsigned long long s21_bank_round_double(double value) {
   double int_part = floor(value);
   double frac = value - int_part;
@@ -69,12 +110,12 @@ void s21_set_sign(s21_decimal *decimal, int sign){
    set_bit(decimal, 127 ,sign);
 }
 
-void set_scale(s21_decimal *decimal, int scale){
+void s21_set_scale(s21_decimal *decimal, int scale){
     decimal->bits[3] = decimal->bits[3] & ~(0xFFu << 16 );
     decimal->bits[3] = decimal ->bits[3] | ((unsigned int)scale << 16);
 }
 
-int get_scale(s21_decimal decimal){
+int s21_get_scale(s21_decimal decimal){
     int scale = decimal.bits[3] & (0xFFu <<16);
     scale = (scale >> 16);
     return scale;
